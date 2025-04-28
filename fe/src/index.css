@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-sky-500/20 rounded-full hover:bg-sky-500/30 transition-colors;
+}
+
+/* Gradient text utilities */
+.gradient-text {
+  @apply bg-gradient-to-r from-sky-400 to-blue-500 text-transparent bg-clip-text;
+}
+
+/* Glass effect */
+.glass-effect {
+  @apply bg-sky-500/5 border border-sky-500/20 backdrop-blur-sm;
+}
