@@ -24,7 +24,6 @@ function StepNode({ item, depth, onStepClick }: StepNodeProps) {
       style={{ paddingLeft: `${depth * 1.5}rem` }}
       onClick={handleClick}
     >
-      {/* Checkmark if completed */}
       {item.status === 'completed' && (
         <CheckCircle className="w-4 h-4 text-green-400" />
       )}
@@ -33,7 +32,7 @@ function StepNode({ item, depth, onStepClick }: StepNodeProps) {
   );
 }
 
-export function StepsList({ steps, currentStep, onStepClick }: StepsListProps) {
+export function StepsList({ steps, onStepClick }: StepsListProps) {
   return (
     <div className="w-64 bg-zinc-900 border-r border-sky-500/20 p-4 h-full overflow-auto">
       <div className="flex items-center gap-2 mb-4">

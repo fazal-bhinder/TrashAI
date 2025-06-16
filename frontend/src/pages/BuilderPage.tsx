@@ -11,6 +11,7 @@ import { useWebContainer } from '../hooks/useWebContainer';
 
 
 export function BuilderPage() {
+
   const location = useLocation();
   const { prompt } = location.state || { prompt: '' };
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
@@ -21,8 +22,10 @@ export function BuilderPage() {
   const [files, setFiles] = useState<FileItem[]>([]);
 
   useEffect(() => {
+
     let originalFiles = [...files];
     let updateHappened = false;
+    
     steps.filter(({status}) => status === "pending").map(step => {
       updateHappened = true;
       if (step?.type === StepType.CreateFile) {
@@ -66,9 +69,7 @@ export function BuilderPage() {
         }
         originalFiles = finalAnswerRef;
       }
-
     })
-
     if (updateHappened) {
 
       setFiles(originalFiles)
@@ -85,13 +86,14 @@ export function BuilderPage() {
   }, [steps, files]);
 
 
+
   useEffect(() => {
+
     const createMountStructure = (files: FileItem[]): Record<string, any> => {
       const mountStructure: Record<string, any> = {};
-  
+      
       const processFile = (file: FileItem, isRootFolder: boolean) => {  
         if (file.type === 'folder') {
-          // For folders, create a directory entry
           mountStructure[file.name] = {
             directory: file.children ? 
               Object.fromEntries(
@@ -107,7 +109,6 @@ export function BuilderPage() {
               }
             };
           } else {
-            // For files, create a file entry with contents
             return {
               file: {
                 contents: file.content || ''
@@ -119,7 +120,6 @@ export function BuilderPage() {
         return mountStructure[file.name];
       };
   
-      // Process each top-level file/folder
       files.forEach(file => processFile(file, true));
   
       return mountStructure;
@@ -127,12 +127,14 @@ export function BuilderPage() {
   
     const mountStructure = createMountStructure(files);
   
-    // Mount the structure if WebContainer is available
     console.log(mountStructure);
     webcontainer?.mount(mountStructure);
   }, [files, webcontainer]);
 
+
+
   async function init() {
+    
     const response = await axios.post(`${BACKEND_URL}/template`, {
       prompt: prompt.trim()
     });
@@ -166,29 +168,31 @@ export function BuilderPage() {
 
 
   return (
-    <div className="flex h-screen">
-      <div className='w-64 bg-zinc-900 p-4 flex flex-col border border-sky-500/20  rounded-xl'>
+    <div className="flex flex-col lg:flex-row h-screen overflow-auto">
+      <div className="w-full lg:w-64 bg-zinc-900 p-4 flex flex-col border border-sky-500/20 rounded-xl mb-4 lg:mb-0">
         <StepsList
-            steps={steps}
-            currentStep={currentStep}
-            onStepClick={(step: Step) => {
-              setCurrentStep(step);
-            }}
-            />
+          steps={steps}
+          currentStep={currentStep}
+          onStepClick={(step: Step) => {
+            setCurrentStep(step);
+          }}
+        />
       </div>
-      <div className="w-64 bg-zinc-900 p-4 flex flex-col border border-sky-500/20  rounded-xl">
+  
+      <div className="w-full lg:w-64 bg-zinc-900 p-4 flex flex-col border border-sky-500/20 rounded-xl mb-4 lg:mb-0">
         <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-        <FileExplorer 
-                files={files} 
-                onFileSelect={setSelectedFile}
-              />
-        </div>
+          <div className="flex items-center gap-2 mb-4">
+            <FileExplorer 
+              files={files} 
+              onFileSelect={setSelectedFile}
+            />
+          </div>
         </div>
       </div>
-      <div className="flex-1 flex bg-sky-500/5 border border-sky-500/20 rounded-xl h-full">
-        <CodeEditor files={selectedFile ? [selectedFile] : []} webContainer={webcontainer}/>
+  
+      <div className="flex-1 bg-sky-500/5 border border-sky-500/20 rounded-xl h-[60vh] lg:h-full overflow-auto">
+        <CodeEditor files={selectedFile ? [selectedFile] : []} webContainer={webcontainer} />
       </div>
     </div>
-  );
+  );  
 }
