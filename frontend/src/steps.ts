@@ -25,7 +25,8 @@ export function parseXml(response: string): Step[] {
         title: title,
         description: `Initialize project: ${title}`,
         type: StepType .CreateFolder,
-        status: 'pending'
+        status: 'pending',
+        name: title
     });
     
     // Find all boltAction tags
@@ -53,7 +54,8 @@ export function parseXml(response: string): Step[] {
                 type: StepType.CreateFile,
                 status: 'pending',
                 code: actionContent,
-                path: filePath
+                path: filePath,
+                name: fileName
             });
         } else if (typeValue === "shell") {
             // Handle shell action
@@ -64,7 +66,8 @@ export function parseXml(response: string): Step[] {
                 description: `Execute: ${command}`,
                 type: StepType.RunScript,
                 status: 'pending',
-                code: command
+                code: command,
+                name: "Run Command"
             });
         }
     }

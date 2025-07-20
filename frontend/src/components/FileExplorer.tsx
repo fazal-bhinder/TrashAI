@@ -56,14 +56,15 @@ function FileNode({ item, depth, onFileClick }: FileNodeProps) {
 
 export function FileExplorer({ files, onFileSelect }: FileExplorerProps) {
   return (
-    <div className="w-64 h-full bg-zinc-900 flex flex-col border-r border-zinc-900">
+    <div className="w-64 h-screen bg-zinc-900 flex flex-col border-r border-zinc-900">
+      {/* Header */}
       <div className="flex items-center gap-2 p-4">
         <Files className="w-5 h-5 text-sky-400" />
         <h2 className="font-semibold text-gray-100 text-base">File Explorer</h2>
       </div>
 
-      {/* Scrollable section */}
-      <div className="flex-1 overflow-y-scroll pr-2">
+      {/* Scrollable file list */}
+      <div className="flex-1 overflow-y-auto pr-2">
         {files.map((file, index) => (
           <FileNode
             key={`${file.path}-${index}`}
@@ -76,3 +77,4 @@ export function FileExplorer({ files, onFileSelect }: FileExplorerProps) {
     </div>
   );
 }
+

@@ -8,6 +8,7 @@ import { parseXml } from '../steps';
 import { FileItem, Step, StepType } from '../types'; 
 import { FileExplorer } from '../components/FileExplorer';
 import { useWebContainer } from '../hooks/useWebContainer';
+ import { useCallback } from 'react';
 
 
 export function BuilderPage() {
@@ -31,17 +32,17 @@ export function BuilderPage() {
       if (step?.type === StepType.CreateFile) {
         let parsedPath = step.path?.split("/") ?? []; 
         let currentFileStructure = [...originalFiles]; 
-        let finalAnswerRef = currentFileStructure;
+        const finalAnswerRef = currentFileStructure;
   
         let currentFolder = ""
         while(parsedPath.length) {
           currentFolder =  `${currentFolder}/${parsedPath[0]}`;
-          let currentFolderName = parsedPath[0];
+          const currentFolderName = parsedPath[0];
           parsedPath = parsedPath.slice(1);
   
           if (!parsedPath.length) {
             // final file
-            let file = currentFileStructure.find(x => x.path === currentFolder)
+            const file = currentFileStructure.find(x => x.path === currentFolder)
             if (!file) {
               currentFileStructure.push({
                 name: currentFolderName,
@@ -54,7 +55,7 @@ export function BuilderPage() {
             }
           } else {
 
-            let folder = currentFileStructure.find(x => x.path === currentFolder)
+            const folder = currentFileStructure.find(x => x.path === currentFolder)
             if (!folder) {
               currentFileStructure.push({
                 name: currentFolderName,
@@ -89,35 +90,51 @@ export function BuilderPage() {
 
   useEffect(() => {
 
-    const createMountStructure = (files: FileItem[]): Record<string, any> => {
-      const mountStructure: Record<string, any> = {};
+    type MountFile = {
+      file: {
+        contents: string;
+      };
+    };
+
+    type MountDirectory = {
+      directory: {
+        [key: string]: MountFile | MountDirectory;
+      };
+    };
+
+    type MountStructure = {
+      [key: string]: MountFile | MountDirectory;
+    };
+
+    const createMountStructure = (files: FileItem[]): MountStructure => {
+      const mountStructure: MountStructure = {};
       
-      const processFile = (file: FileItem, isRootFolder: boolean) => {  
+      const processFile = (file: FileItem, isRootFolder: boolean): MountFile | MountDirectory => {  
         if (file.type === 'folder') {
-          mountStructure[file.name] = {
+          const dir: MountDirectory = {
             directory: file.children ? 
               Object.fromEntries(
                 file.children.map(child => [child.name, processFile(child, false)])
               ) 
               : {}
           };
-        } else if (file.type === 'file') {
           if (isRootFolder) {
-            mountStructure[file.name] = {
-              file: {
-                contents: file.content || ''
-              }
-            };
-          } else {
-            return {
-              file: {
-                contents: file.content || ''
-              }
-            };
+            mountStructure[file.name] = dir;
           }
+          return dir;
+        } else if (file.type === 'file') {
+          const fileObj: MountFile = {
+            file: {
+              contents: file.content || ''
+            }
+          };
+          if (isRootFolder) {
+            mountStructure[file.name] = fileObj;
+          }
+          return fileObj;
         }
-  
-        return mountStructure[file.name];
+        // fallback, should not reach here
+        return {} as MountFile;
       };
   
       files.forEach(file => processFile(file, true));
@@ -131,9 +148,7 @@ export function BuilderPage() {
     webcontainer?.mount(mountStructure);
   }, [files, webcontainer]);
 
-
-
-  async function init() {
+  const init = useCallback(async () => {
     
     const response = await axios.post(`${BACKEND_URL}/template`, {
       prompt: prompt.trim()
@@ -143,7 +158,7 @@ export function BuilderPage() {
   
     const parsedSteps = parseXml(uiPrompts[0]).map((x: Step) => ({
       ...x,
-      status: 'pending' as 'pending',
+      status: 'pending' as const,
     }));
   
     setSteps(parsedSteps);
@@ -157,14 +172,14 @@ export function BuilderPage() {
 
     setSteps(s => [...s, ...parseXml(stepResponse.data.response).map((x=>({
       ...x,
-      status: 'pending' as 'pending',
+      status: 'pending' as const,
     })))]);
   
-  }
+  }, [prompt]);
 
-  useEffect(()=>{
-    init()
-  },[])
+  useEffect(() => {
+    init();
+  }, [init]);
 
 
   return (

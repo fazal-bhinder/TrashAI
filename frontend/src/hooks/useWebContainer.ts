@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { WebContainer } from '@webcontainer/api';
 
-let webcontainerInstance: WebContainer | null = null; // <- GLOBAL singleton
+let webcontainerInstance: WebContainer | null = null; 
 
 export function useWebContainer() {
   const [webcontainer, setWebcontainer] = useState<WebContainer>();
