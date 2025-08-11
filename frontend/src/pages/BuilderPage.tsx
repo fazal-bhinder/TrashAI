@@ -3,11 +3,12 @@ import { CodeEditor } from '../components/CodeEditor';
 import { useLocation } from 'react-router-dom';
 import { BACKEND_URL } from '../config';
 import axios from 'axios';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { parseXml } from '../steps';
 import { FileItem, Step, StepType } from '../types'; 
 import { FileExplorer } from '../components/FileExplorer';
 import { useWebContainer } from '../hooks/useWebContainer';
+import { useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 // Extend Window interface for addAssistantMessage
